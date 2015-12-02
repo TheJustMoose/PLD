@@ -1,0 +1,48 @@
+Name     ADDR_DECODER;
+PartNo   00;
+Date     29.11.2015;
+Revision 05;
+Designer JM;
+Company  Home;
+Assembly None;
+Location ;
+Device   g16v8a;
+
+/* Posledovatel'nost' pinov, nizhe budut dany vhodnye/vyhodnye signaly imenno v takom poryadke. */
+/* Primechanie: dlya RAM dana ne inversnaya zapis', chto pozvolilo uprostit' zapis' vyhodov do odnoj H v stroke.  */
+
+ORDER: A15, A14, A13, A12, A11, A10, A9, A8, %2, RD, WR, %2, LCD, N_WR, N_RD, RAM1, RAM2; 
+
+/* Vhodnye i vyhodnye signaly, kak oni dolzhny byt'. */
+
+VECTORS:
+/* Testiruem Internal Atmega SRAM, vyhodnyh signalov ne doljno byt nigde */
+00000000 00 LLLLL
+00000001 00 LLLLL
+00000010 00 LLLLL
+00000011 00 LLLLL
+
+/* Testiruem pamyat' RAM1, ona vybiraetsya nezavisimo ot sostoyaniya RD/WR */
+00000100 00 LLLHL
+00000101 00 LLLHL
+00000110 00 LLLHL
+00000111 00 LLLHL
+00001000 00 LLLHL
+01111111 00 LLLHL
+
+/* Testiruem pamyat' RAM2, ona vybiraetsya nezavisimo ot sostoyaniya RD/WR */
+10000000 00 LLLLH
+10000001 00 LLLLH
+10000010 00 LLLLH
+10000011 00 LLLLH
+10000100 00 LLLLH
+11111101 00 LLLLH
+
+/* Testiruem port PORT, on aktiven tol'ko pri nalichii signala WR */
+11111110 00 LLLLL
+11111110 01 HLLLL
+
+/* Testiruem set' NET, ona aktivna tol'ko pri nalichii signalov WR ili RD */
+11111111 00 LLLLL
+11111111 01 LHLLL
+11111111 10 LLHLL
