@@ -30,7 +30,6 @@ RAM1 = !A15 & (A14 # A13 # A12 # A11 # A10);
 N_RD = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & RD; /* Net Read */
 N_WR = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & WR; /* Net Write */
 LCD  = A15 & A14 & A13 & A12 & A11 & A10 & A9 & !A8 & WR;
-
 RAM2 = A15 & !(A14 & A13 & A12 & A11 & A10 & A9);
 
 N_ALE = ALE; /* The real inversion occurs in the pin declaration */
@@ -51,20 +50,19 @@ ACC = WR # RD;
    -|10  GND|      |!RD  11|-
      ----------------------
 
+     A15 A14 A13 A12 A11 A10  A9  A8
+     -------------------------------
+0x00   0   0   0   0   0   0   0   0  Internal Atmega RAM
+0x03   0   0   0   0   0   0   1   1  First 1024 bytes of RAM is Internal RAM
+                                       (real: 608 = 512RAM + Reg File + ...)
+0x04   0   0   0   0   0   1   0   0  RAM1
+0x7F   0   1   1   1   1   1   1   1
 
-     A15  A14  A13  A12  A11  A10   A9   A8
-     --------------------------------------
-0x00   0    0    0    0    0    0    0    0  Internal Atmega RAM
-0x03   0    0    0    0    0    0    1    1  First 1024 bytes of RAM is Internal RAM (real - 608 == 512RAM + Reg File + ...)
+0x80   1   0   0   0   0   0   0   0  RAM2
+0xFD   1   1   1   1   1   1   0   1
 
-0x04   0    0    0    0    0    1    0    0  RAM1
-0x7F   0    1    1    1    1    1    1    1
+0xFE   1   1   1   1   1   1   1   0  LCD
 
-0x80   1    0    0    0    0    0    0    0  RAM2
-0xFD   1    1    1    1    1    1    0    1
-
-0xFE   1    1    1    1    1    1    1    0  LCD
-
-0xFF   1    1    1    1    1    1    1    1  NET
+0xFF   1   1   1   1   1   1   1   1  NET
 
 */
