@@ -10,10 +10,10 @@ Device   g16v8a;
 
 /* *************** INPUT PINS *********************/
 
+PIN 1   =  ALE;   /* Address Latch Enable */
 PIN [2..9] = [A15..A8];
-
+PIN 11  =  !RD;
 PIN 12  =  !WR;
-PIN 13  =  !RD;
 
 /* *************** OUTPUT PINS *********************/
 PIN 19  =  !RAM1;
@@ -21,29 +21,34 @@ PIN 18  =  !RAM2;
 PIN 17  =  LCD;
 PIN 16  =  N_RD;
 PIN 15  =  N_WR;
+PIN 14  =  !N_ALE;
+PIN 13  =  !ACC;   /* Pin active when RAM work! */
 
 /* ********** LOGIC ********** */
 
 RAM1 = !A15 & (A14 # A13 # A12 # A11 # A10);
-N_RD = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & RD;
-N_WR = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & WR;
+N_RD = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & RD; /* Net Read */
+N_WR = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & WR; /* Net Write */
 LCD  = A15 & A14 & A13 & A12 & A11 & A10 & A9 & !A8 & WR;
 
 RAM2 = A15 & !(A14 & A13 & A12 & A11 & A10 & A9);
 
+N_ALE = ALE; /* The real inversion occurs in the pin declaration */
+ACC = WR # RD;
+
 /*
            ATF16V8B
      ----------  ----------
-   -|1    - |  \/  |Vcc  20|-
+   -|1   ALE|  \/  |Vcc  20|-
    -|2   A15|      |!R1  19|-
    -|3   A14|      |!R2  19|-
    -|4   A13|      |LCD  17|-
    -|5   A12|      |N_RD 16|-
    -|6   A11|      |N_WR 15|-
-   -|7   A10|      | -   14|-
-   -|8    A9|      |!RD  13|-
+   -|7   A10|      |!ALE 14|-
+   -|8    A9|      |!ACC 13|-
    -|9    A8|      |!WR  12|-
-   -|10  GND|      | -   11|-
+   -|10  GND|      |!RD  11|-
      ----------------------
 
 
