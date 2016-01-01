@@ -1,7 +1,7 @@
 Name     ADDR_DECODER;
 PartNo   00;
-Date     29.11.2015;
-Revision 05;
+Date     01.01.2016;
+Revision 06;
 Designer JM;
 Company  Home;
 Assembly None;
@@ -16,8 +16,8 @@ PIN 11  =  !RD;
 PIN 12  =  !WR;
 
 /* *************** OUTPUT PINS *********************/
-PIN 19  =  !RAM1;
-PIN 18  =  !RAM2;
+PIN 19  =  RAM1;
+PIN 18  =  RAM2;
 PIN 17  =  LCD;
 PIN 16  =  N_RD;
 PIN 15  =  N_WR;
@@ -39,8 +39,8 @@ ACC = WR # RD;
            ATF16V8B
      ----------  ----------
    -|1   ALE|  \/  |Vcc  20|-
-   -|2   A15|      |!R1  19|-
-   -|3   A14|      |!R2  19|-
+   -|2   A15|      |RAM1 19|-
+   -|3   A14|      |RAM2 18|-
    -|4   A13|      |LCD  17|-
    -|5   A12|      |N_RD 16|-
    -|6   A11|      |N_WR 15|-
