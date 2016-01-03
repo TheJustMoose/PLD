@@ -1,12 +1,12 @@
 Name     ADDR_DECODER;
 PartNo   00;
-Date     29.11.2015;
-Revision 05;
+Date     03.01.2016;
+Revision 07;
 Designer JM;
 Company  Home;
 Assembly None;
 Location ;
-Device   g16v8a;
+Device   f1502ispplcc44;
 
 /* Posledovatel'nost' pinov, nizhe budut dany vhodnye/vyhodnye signaly imenno v takom poryadke. */
 /* Primechanie: dlya RAM dana ne inversnaya zapis', chto pozvolilo uprostit' zapis' vyhodov do odnoj H v stroke.  */

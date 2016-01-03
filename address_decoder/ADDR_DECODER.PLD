@@ -1,28 +1,28 @@
 Name     ADDR_DECODER;
 PartNo   00;
-Date     01.01.2016;
-Revision 06;
+Date     03.01.2016;
+Revision 07;
 Designer JM;
 Company  Home;
 Assembly None;
 Location ;
-Device   g16v8a;
+Device   f1502ispplcc44;
 
 /* *************** INPUT PINS *********************/
 
-PIN 1   =  ALE;   /* Address Latch Enable */
-PIN [2..9] = [A15..A8];
-PIN 11  =  !RD;
-PIN 12  =  !WR;
+PIN 2   =  ALE;   /* Address Latch Enable */
+PIN [4,5,6,8,9,11,12,14] = [A15..A8];
+PIN 16  =  !RD;
+PIN 17  =  !WR;
 
 /* *************** OUTPUT PINS *********************/
-PIN 19  =  RAM1;
-PIN 18  =  RAM2;
-PIN 17  =  LCD;
-PIN 16  =  N_RD;
-PIN 15  =  N_WR;
-PIN 14  =  !N_ALE;
-PIN 13  =  !ACC;   /* Pin active when RAM work! */
+PIN 39  =  RAM1;
+PIN 37  =  RAM2;
+PIN 36  =  LCD;
+PIN 34  =  N_RD;
+PIN 33  =  N_WR;
+PIN 31  =  !N_ALE;
+PIN 29  =  !ACC;   /* Pin active when RAM work! */
 
 /* ********** LOGIC ********** */
 
@@ -35,20 +35,29 @@ RAM2 = A15 & !(A14 & A13 & A12 & A11 & A10 & A9);
 N_ALE = ALE; /* The real inversion occurs in the pin declaration */
 ACC = WR # RD;
 
-/*
-           ATF16V8B
-     ----------  ----------
-   -|1   ALE|  \/  |Vcc  20|-
-   -|2   A15|      |RAM1 19|-
-   -|3   A14|      |RAM2 18|-
-   -|4   A13|      |LCD  17|-
-   -|5   A12|      |N_RD 16|-
-   -|6   A11|      |N_WR 15|-
-   -|7   A10|      |!ALE 14|-
-   -|8    A9|      |!ACC 13|-
-   -|9    A8|      |!WR  12|-
-   -|10  GND|      |!RD  11|-
-     ----------------------
+/* From ADDR_DECODER.fit:
+
+               A  A  A  V  A          G
+               1  1  1  C  L          N
+               3  4  5  C  E          D
+            ____________________________________
+           /   6  5  4  3  2  1 44 43 42 41 40  \
+      TDI |  7                                39 | RAM1
+      A12 |  8                                38 | TDO
+      A11 |  9                                37 | RAM2
+      GND | 10                                36 | LCD
+      A10 | 11                                35 | VCC
+       A9 | 12            ATF1502             34 | N_RD
+      TMS | 13          44-Lead PLCC          33 | N_WR
+       A8 | 14                                32 | TCK
+      VCC | 15                                31 | N_ALE
+       RD | 16                                30 | GND
+       WR | 17                                29 | ACC
+          |   18 19 20 21 22 23 24 25 26 27 28   |
+           \____________________________________/
+                          G  V
+                          N  C
+                          D  C
 
      A15 A14 A13 A12 A11 A10  A9  A8
      -------------------------------
