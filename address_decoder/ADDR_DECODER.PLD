@@ -1,25 +1,43 @@
 Name     ADDR_DECODER;
 PartNo   00;
-Date     07.01.2016;
-Revision 08;
+Date     08.01.2016;
+Revision 09;
 Designer JM;
 Company  Home;
 Assembly None;
 Location ;
 Device   f1502ispplcc44;
 
+/* *************** MIN ADDRESS CONST *********************/
+/* C == 0x260 */
+
+$define C15 'b'0
+$define C14 'b'0
+$define C13 'b'0
+$define C12 'b'0
+
+$define C11 'b'0
+$define C10 'b'0
+$define C9 'b'1
+$define C8 'b'0
+
+$define C7 'b'0
+$define C6 'b'1
+$define C5 'b'1
+$define C4 'b'0
+
 /* *************** INPUT PINS *********************/
 
 PIN 2  = ALE;   /* Address Latch Enable */
-PIN [4, 5, 6, 8, 9, 11, 12, 14] = [A15..A8];
-PIN 16 = !RD;
-PIN 17 = !WR;
+PIN [4,5,6,8, 9,11,12,14, 16,17,18,19] = [A15,A14,A13,A12, A11,A10,A9,A8, A7,A6,A5,A4];
+PIN 43 = !RD;
+PIN 41 = !WR;
 
 /* *************** OUTPUT PINS *********************/
 
-PIN 18 = RAM1;
-PIN 19 = RAM2;
-PIN 20 = SLV;
+PIN 20 = RAM1;
+PIN 21 = RAM2;
+PIN 24 = SLV;
 
 PIN 37 = !RAM1CS;
 PIN 36 = !RAM2CS;
@@ -31,8 +49,24 @@ PIN 31 = LCD;
 
 /*NODE RAM1, RAM2, SLV;*/
 NODE ACC;
+NODE INT_RAM;
 
-RAM1 = !A15 & (A14 # A13 # A12 # A11 # A10);
+/* Internal RAM has address range 0 - 25F. INT_RAM = 0x260 > A */
+
+APPEND INT_RAM = C15 & !A15;
+APPEND INT_RAM = C14 & !A14 & (C15 # !A15);
+APPEND INT_RAM = C13 & !A13 & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C12 & !A12 & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C11 & !A11 & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C10 & !A10 & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C9 & !A9 & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C8 & !A8 & (C9 # !A9) & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C7 & !A7 & (C8 # !A8) & (C9 # !A9) & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C6 & !A6 & (C7 # !A7) & (C8 # !A8) & (C9 # !A9) & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C5 & !A5 & (C6 # !A6) & (C7 # !A7) & (C8 # !A8) & (C9 # !A9) & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+APPEND INT_RAM = C4 & !A4 & (C5 # !A5) & (C6 # !A6) & (C7 # !A7) & (C8 # !A8) & (C9 # !A9) & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
+
+RAM1 = !INT_RAM & !A15;
 N_RD = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & RD;
 N_WR = A15 & A14 & A13 & A12 & A11 & A10 & A9 & A8 & WR;
 LCD  = A15 & A14 & A13 & A12 & A11 & A10 & A9 & !A8 & WR;
@@ -57,8 +91,8 @@ RAM2CS.AP = 'b'0;
 /* From ADDR_DECODER.fit:
 
                A  A  A  V  A          G
-               1  1  1  C  L          N
-               3  4  5  C  E          D
+               1  1  1  C  L       R  N  W
+               3  4  5  C  E       D  D  R
             ____________________________________
            /                                    \
           |    6  5  4  3  2  1 44 43 42 41 40   |
@@ -71,28 +105,28 @@ RAM2CS.AP = 'b'0;
       TMS | 13          44-Lead PLCC          33 | N_WR
        A8 | 14                                32 | TCK
       VCC | 15                                31 | LCD
-       RD | 16                                30 | GND
-       WR | 17                                29 |
+       A7 | 16                                30 | GND
+       A6 | 17                                29 |
           |   18 19 20 21 22 23 24 25 26 27 28   |
            \____________________________________/
-              R  R  S     G  V
-              A  A  L     N  C
-              M  M  V     D  C
-              1  2
+              A     R  R  G  V  S
+              5     A  A  N  C  L
+                    M  M  D  C  V
+                    1  2
 
-     A15 A14 A13 A12 A11 A10  A9  A8
-     -------------------------------
-0x00   0   0   0   0   0   0   0   0  Internal Atmega RAM
-0x03   0   0   0   0   0   0   1   1  First 1024 bytes of RAM is Internal RAM
-                                       (real: 608 = 512RAM + Reg File + ...)
-0x04   0   0   0   0   0   1   0   0  RAM1
-0x7F   0   1   1   1   1   1   1   1
+       A15 A14 A13 A12 A11 A10  A9  A8  A7  A6  A5  A4
+       -----------------------------------------------
+0x000    0   0   0   0   0   0   0   0   0   0   0   0  Internal ATmega SRAM
+0x025(F) 0   0   0   0   0   0   1   1   0   1   1   0  (First 25F bytes)
 
-0x80   1   0   0   0   0   0   0   0  RAM2
-0xFD   1   1   1   1   1   1   0   1
+0x026    0   0   0   0   0   1   0   0   0   0   0   0  RAM1
+0x7FF    0   1   1   1   1   1   1   1   1   1   1   1
 
-0xFE   1   1   1   1   1   1   1   0  LCD
+0x800    1   0   0   0   0   0   0   0   0   0   0   0  RAM2
+0xFD0    1   1   1   1   1   1   0   1   1   1   1   1
 
-0xFF   1   1   1   1   1   1   1   1  NET
+0xFE0    1   1   1   1   1   1   1   0   0   0   0   0  LCD
+
+0xFF0    1   1   1   1   1   1   1   1   0   0   0   0  NET
 
 */
