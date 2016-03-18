@@ -35,24 +35,25 @@ PIN 44 = !WR;
 
 /* *************** OUTPUT PINS *********************/
 
-PIN 39 = !ROM_CS;
-PIN 37 = !RAM1CS;
-PIN 36 = !RAM2CS;
-PIN 34 = N_RD;
-PIN 33 = N_WR;
-PIN 31 = LCD;
-
-PIN 26 = ROM0;
-PIN 27 = ROM1;
-PIN 28 = ROM2;
+PIN 40 = N_WR;
+PIN 39 = N_RD;
+PIN 37 = LCD;
+PIN 36 = !RAM1CS;
+PIN 34 = !RAM2CS;
+PIN 33 = !ROM_CS;
+PIN 31 = ROM4;
 PIN 29 = ROM3;
+PIN 28 = ROM2;
+PIN 27 = ROM1;
+PIN 26 = ROM0;
 
 /* ********** LOGIC ********** */
 
-NODE SLV, RAM1, PAGING, RAM3, CFG, INT_RAM;
-NODE [CFG_REG4..0];
+NODE ACC, SLV, RAM1, PAGING, RAM3, CFG, INT_RAM;
+NODE [CFG_REG5..0], CFG_LATCH;
+NODE [ADDR_LATCH7..0];
+FIELD CFG_REG = [CFG_REG5..0];
 FIELD ADDR = [A15..A0];
-FIELD CFG_REG = [CFG_REG4..0];
 
 /* Internal RAM has address range 0 - 25F. INT_RAM = 0x260 > A */
 
@@ -70,15 +71,19 @@ APPEND INT_RAM = C5 & !A5 & (C6 # !A6) & (C7 # !A7) & (C8 # !A8) & (C9 # !A9) & 
 APPEND INT_RAM = C4 & !A4 & (C5 # !A5) & (C6 # !A6) & (C7 # !A7) & (C8 # !A8) & (C9 # !A9) & (C10 # !A10) & (C11 # !A11) & (C12 # !A12) & (C13 # !A13) & (C14 # !A14) & (C15 # !A15);
 
 RAM1 = !INT_RAM & !A15;
-N_RD =  (ADDR : 0xFFFD) & RD;
-N_WR =  (ADDR : 0xFFFD) & WR;
-LCD  =  (ADDR : 0xFFFE) & WR;
-CFG  =  (ADDR : 0xFFFF);
+N_RD =  (ADDR : 'h'FFFD) & RD;
+N_WR =  (ADDR : 'h'FFFD) & WR;
+LCD  =  (ADDR : 'h'FFFE) & WR;
+CFG  =  (ADDR : 'h'FFFF);
 PAGING = !A14 & A15;         /* 16KB Pages */
-RAM3 = !(ADDR : 0xFFFX) & A14 & A15;
+RAM3 = !((A0 # A1) & A2 & A3 & A4 & A5 & A6 & A7 & A8 & A9 & A10 & A11 & A12 & A13) & A14 & A15;
+ACC = WR # RD; /* simulator failed w/o isolated node (default SLV == 1 and I don't know why) */
+
+CFG_LATCH.D = CFG;
+CFG_LATCH.CK = ALE;
 
 SLV.D = 'b'1;
-SLV.CK = !(WR # RD);
+SLV.CK = !ACC;
 SLV.AR = ALE;
 
 RAM1CS.D = RAM1;
@@ -86,20 +91,21 @@ RAM1CS.CK = !ALE;
 RAM1CS.AR = SLV;
 RAM1CS.AP = 'b'0;
 
-RAM2CS.D = (PAGING & (CFG_REG : 'b'00010000)) # RAM3;
+/* RAM2 can work at upper 16KB or during paging access */
+RAM2CS.D = (PAGING & (CFG_REG : 'b'00100000)) # RAM3;
 RAM2CS.CK = !ALE;
 RAM2CS.AR = SLV;
 RAM2CS.AP = 'b'0;
 
-ROM_CS.D = PAGING & (CFG_REG : 'b'0000XXXX);
+ROM_CS.D = PAGING & (CFG_REG : 'b'000XXXXX);
 ROM_CS.CK = !ALE;
 ROM_CS.AR = SLV;
 ROM_CS.AP = 'b'0;
 
-[CFG_REG0..4].D = [A0..4];
-[CFG_REG0..4].CK = CFG & WR;
+[CFG_REG0..5].D = [A0..5];
+[CFG_REG0..5].CK = CFG_LATCH & WR;
 
-[ROM0..3] = [CFG_REG0..3];
+[ROM0..4] = [CFG_REG0..4];
 
 
 
@@ -128,21 +134,21 @@ ROM_CS.AP = 'b'0;
 
 /* From ADDR_DECODER.fit:
 
-                                                                 
-                  A  A  A  V  A          G                       
-                  1  1  1  C  L  R W     N                       
-                  3  4  5  C  E  D R     D                       
+                                               N                 
+                  A  A  A  V  A          G     _                 
+                  1  1  1  C  L  R W     N     W                 
+                  3  4  5  C  E  D R     D     R                 
                ____________________________________              
               /   6  5  4  3  2  1 44 43 42 41 40  \             
-         TDI |  7                                39 | ROM_CS     
+         TDI |  7                                39 | N_RD       
          A12 |  8                                38 | TDO        
-         A11 |  9                                37 | RAM1CS     
-         GND | 10                                36 | RAM2CS     
+         A11 |  9                                37 | LCD        
+         GND | 10                                36 | RAM1CS     
          A10 | 11                                35 | VCC        
-          A9 | 12            ATF1502             34 | N_RD       
-         TMS | 13          44-Lead PLCC          33 | N_WR       
+          A9 | 12            ATF1502             34 | RAM2CS     
+         TMS | 13          44-Lead PLCC          33 | ROM_CS     
           A8 | 14                                32 | TCK        
-         VCC | 15                                31 | LCD        
+         VCC | 15                                31 | ROM4       
           A7 | 16                                30 | GND        
           A6 | 17                                29 | ROM3       
              |   18 19 20 21 22 23 24 25 26 27 28   |            

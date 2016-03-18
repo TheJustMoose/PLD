@@ -1,0 +1,15 @@
+del *.abs
+del *.doc
+del *.fit
+del *.io
+del *.jed
+del *.lst
+del *.mx
+del *.pdf
+del *.pin
+del *.pla
+del *.sim
+del *.tt2
+del *.tt3
+del *.so
+del *.wo
